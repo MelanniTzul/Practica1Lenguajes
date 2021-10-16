@@ -13,6 +13,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
@@ -372,38 +374,25 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_LimpiarjButton1ActionPerformed
      
       //Funcion que me permite buscar la palabra y resaltar el texto   
-     public void BuscadorDePalabra(JTextArea AreaCargaArchivo, String PalabraBuscar) {
+     public void BuscadorDePalabra(JTextArea area1, String texto) {
 
-        DefaultHighlighter.DefaultHighlightPainter ResaltadoAmarillo = new DefaultHighlightPainter(Color.YELLOW);//Resalta el texto de color amarillo
-        Highlighter marcaTextos = AreaCargaArchivo.getHighlighter();//Permite poder tener el  metodo para indicar
-        marcaTextos.removeAllHighlights();//Nos permite poder borramos todas las palabaras resaltadas
-
-        String contenido = AreaCargaArchivo.getText();//contenido del textarea
-        int inicioDePalabra = 0;
-        String palabraAComparar = "";
-        for (int x = 0; x < contenido.length(); x++) {//este for explora hasta la ultima letra de la cadena
-            if (contenido.charAt(x) == ' ' || contenido.charAt(x) == '\n') {//si es espacio o enter entonces hasta aqui se forma una palabra                                                                          
-                //comparamos la palabra construida y la que se quiere buscar
-                if (palabraAComparar.equals(PalabraBuscar)) {
-                    try {
-                        //si son iguales entonces usamos el inicio de la palabra y y la x para marcar el texto en esa posicion
-                        marcaTextos.addHighlight(inicioDePalabra, x, ResaltadoAmarillo);
-                    } catch (BadLocationException ex) {
-                    }
-                }
-                palabraAComparar = "";//reiniciamos la paralbra referencia
-                inicioDePalabra = x + 1;//el inicio de otra palabra sera la pocision despues de un enter o espacio
-            } else {//si no hay espacio o enter entonces sumamos la letra a la palabra
-                palabraAComparar = palabraAComparar + contenido.charAt(x);
-                if (x == contenido.length() - 1) {//si estamos al final de la cadena
-                    if (palabraAComparar.equals(PalabraBuscar)) {//y la palabra es igual a la a buscar entonces la marcamos
-                        try {
-                            marcaTextos.addHighlight(inicioDePalabra, (x + 1), ResaltadoAmarillo);
-                        } catch (BadLocationException ex) {
-                        }
-                    }
+        if (texto.length() >= 1) {
+            DefaultHighlighter.DefaultHighlightPainter highlightPainter = new DefaultHighlighter.DefaultHighlightPainter(Color.GREEN);
+            Highlighter h = area1.getHighlighter();
+            h.removeAllHighlights();
+            String text = area1.getText();
+            String caracteres = texto;
+            Pattern p = Pattern.compile("(?i)" + caracteres);
+            Matcher m = p.matcher(text);
+            while (m.find()) {
+                try {
+                    h.addHighlight(m.start(), m.end(), highlightPainter);
+                } catch (BadLocationException ex) {
+                    Logger.getLogger(Color.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
+        } else {
+            JOptionPane.showMessageDialog(area1, "la palabra a buscar no puede ser vacia");
         }
     }
     

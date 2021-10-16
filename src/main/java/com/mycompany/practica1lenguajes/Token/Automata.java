@@ -19,7 +19,7 @@ public class Automata {
     private String[] LineasTexto;
     private String[] PalabrasTexto;
     //Variables cuando se encuentre un erro o token para saber enque fila va
-    private int fila;
+    private int fila=1;
     private int columna;
     private JTextArea AreaCargaArchivo;
     private ArrayList<Error> errores = new ArrayList<>();//Arraylist para los errores
@@ -112,11 +112,12 @@ public class Automata {
             PalabrasTexto = LineasTexto[i].split(" ");
 
             for (int j = 0; j < PalabrasTexto.length; j++) {
-
+                   
                 AnalizarPalabra(PalabrasTexto[j]);
                 columna++;
             }
             fila++;
+            columna=0;
         }
     }
 
@@ -192,9 +193,11 @@ public class Automata {
                                     VentanaPrincipal.TransicionesjTextArea.append("Me moví del estado " + EstadoActual + " al estado " + matrizAutomata[EstadoActual][5] + " con " + CaracteresDePalabra[i] + "\n");
                                     EstadoActual = matrizAutomata[EstadoActual][5];
 
-                                } else {
-                                    EstadoActual = -1;
-                                }
+                                }else {
+
+                                    
+                                        EstadoActual = -1;
+                                    }                              
 
                             }
                         }
@@ -216,20 +219,36 @@ public class Automata {
         }
 
         //Analizador de tokens
-        for (int i = 0; i < EstadosAceptacion.length; i++) {
+        if (EstadoActual != -2) {
+            for (int i = 0; i < EstadosAceptacion.length; i++) {
 
-            if (EstadosAceptacion[i] == EstadoActual) {
-                Tokens.add(new Token(Cadena, InstanciasTipo[i].getTipo(), fila, columna));
-                EstadoActual = 0;
-                break;
-            } else {
-                if (i == EstadosAceptacion.length - 1) {
-                    errores.add(new Error(Cadena, fila, columna));
+                if (EstadosAceptacion[i] == EstadoActual) {
+                    Tokens.add(new Token(Cadena, InstanciasTipo[i].getTipo(), fila, columna));
+                    EstadoActual = 0;
+                    break;
+                } else {
+                    if (i == EstadosAceptacion.length - 1) {
+                        if(!Cadena.isEmpty()){
+                        errores.add(new Error(Cadena, fila, columna));
+                        EstadoActual=0;
+                        Cadena="";
+                        }else{
+                        EstadoActual=0;
+                        Cadena="";
+                        }
+                        
+                    }
+
                 }
-
             }
+
+        } else {
+            EstadoActual = 0;
         }
+
     }
+
+ 
 
     //Metodo que me permite saber que catidadd de palabras tengo de cada token
     public void ContarLexema() {
@@ -241,16 +260,16 @@ public class Automata {
                     break;
                 } else {
                     if (lexemas.size() - 1 == j) {
-                        lexemas.add(new Lexema(Tokens.get(i).getTexto(), Tokens.get(i).getTipo()));                   
+                        lexemas.add(new Lexema(Tokens.get(i).getTexto(), Tokens.get(i).getTipo()));
+                    }
                 }
             }
         }
+
     }
 
-}
-
 //Metodo que me permite imprimir los reportes en las tablas
-public void ImprimirReportes() {
+    public void ImprimirReportes() {
         if (errores.isEmpty()) {//Si mi array list esta vacio, entonces no tengo ningun error 
             DefaultTableModel tabla = new DefaultTableModel();
             VentanaPrincipal.ReporteDeTokensjTable2.setModel(tabla);
